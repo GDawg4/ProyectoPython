@@ -1,11 +1,24 @@
 from neo4j import GraphDatabase, basic_auth
 
 class Database(object):
+
     def __init__(self, uri, user, password):
-        self._driver = GraphDatabase.driver(uri, auth(user, password))
+        self._driver = GraphDatabase.driver(uri, auth=(user, password))
 
     def close(self):
         self._driver.close()
+
+    def print_greeting(self, message):
+        with self._driver.session() as session:
+            greeting = session.write_transaction(self._create_and_return_greeting, message)
+            print(greeting)
+
+    @staticmethod
+    def _create_and_return_greeting(tx, message):
+        result = tx.run("CREATE (a:Greeting) "
+                        "SET a.message = $message "
+                        "RETURN a.message + ', from node ' + id(a)", message=message)
+        return result.single()[0]
 
     def write(self, id, type, arguments):
         result = ""
@@ -70,39 +83,39 @@ class Database(object):
             result = """
             CREATE (Compu:Carrera{titulo:"Compu"})
             """
-        with self._driver as session:
-            return session.write_transaction(self._Default,result)
+            with self._driver.session() as session:
+                return session.write_transaction(self._Default,result)
 
-        @staticmethod
-        def _Default(tx, result):
-            return tx.run(result)
+    @staticmethod
+    def _Default(tx, result):
+        return tx.run(result)
 
-        @staticmethod
-        def _getNodes(tx, result, value):
-            return tx.run(result, value)
+    @staticmethod
+    def _getNodes(tx, result, value):
+        return tx.run(result, value)
 
-        @staticmethod
-        def _getNode(tx, result, value):
-            return tx.run(result, value)
+    @staticmethod
+    def _getNode(tx, result, value):
+        return tx.run(result, value)
 
-        @staticmethod
-        def _upgrade(tx, result, value, newValue):
-            result = tx.run(result, value, newValue)
+    @staticmethod
+    def _upgrade(tx, result, value, newValue):
+        result = tx.run(result, value, newValue)
 
-        @staticmethod
-        def _deleteLink(tx, result, variable1, variable2):
-            result = tx.run(result, variable1, variable2)
+    @staticmethod
+    def _deleteLink(tx, result, variable1, variable2):
+        result = tx.run(result, variable1, variable2)
 
-        @staticmethod
-        def _delete(tx, result, value):
-            result = tx.run(result, value)
+    @staticmethod
+    def _delete(tx, result, value):
+        result = tx.run(result, value)
 
-        @staticmethod
-        def _connect(tx, result, variable1, variable2):
-            result = tx.run(result, variable1, variable2)
+    @staticmethod
+    def _connect(tx, result, variable1, variable2):
+        result = tx.run(result, variable1, variable2)
 
-        """This method is used by write"""
+    """This method is used by write"""
 
-        @staticmethod
-        def _create(tx, arguments, result):
-            result = tx.run(result, arguments)
+    @staticmethod
+    def _create(tx, arguments, result):
+        result = tx.run(result, arguments)
