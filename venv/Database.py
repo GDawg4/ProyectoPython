@@ -20,7 +20,7 @@ class Database(object):
                         "RETURN a.message + ', from node ' + id(a)", message=message)
         return result.single()[0]
 
-    def write(self, id, type, arguments):
+    def write(self, _id, type, arguments):
         result = ""
         argumentsList = []
         if(type!=None):
@@ -28,7 +28,7 @@ class Database(object):
             counter = 0
             for oneArgument in arguments:
                 argumentsList.append(arguments[oneArgument])
-                result += "SET " + _id + "." + variable + " = $arguments[" + str(counter)  + "]" + "\n"
+                result += "SET " + _id + "." + oneArgument + " = $arguments[" + str(counter)  + "]" + "\n"
                 counter += 1
         with self._driver.session() as session:
             session.write_transaction(self._crea, argumentsList, result)
